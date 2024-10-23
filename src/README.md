@@ -51,6 +51,13 @@ RPC Url: http://127.0.0.1:8545
 Chain ID: 31337
 ```
 
+To run the RAG frontend, in the rag directory run:
+```
+streamlit run rag_blockchain_streamlit.py
+```
+
+Please note this will only load documents currently in the corpus in the blockchain. If additional documents are needed, stop streamlit and rerun the above command.
+
 ## Requirements:
 
 * npm
@@ -59,6 +66,8 @@ Chain ID: 31337
 ** web3
 * hardhat
 * MetaMask browser extension
+* python > 3
+* streamlit
 
 
 ## Contributors:
