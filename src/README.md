@@ -31,7 +31,7 @@ Once the contract has been deployed take note of the contract's address (which c
 this.contractAddress = '<NEW_CONTRACT_ADDRESS>'
 ```
 
-After modifying interact.js, in the assignment src directory (this directory) run:
+After modifying interact.js, in the frontend directory run:
 
 ```
 npm install express
