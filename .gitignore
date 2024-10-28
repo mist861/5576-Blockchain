@@ -4,6 +4,14 @@
 # Node Modules
 node_modules*
 
+# package
+package.json
+package-lock.json
+
+# Hardhat Junk
+cache/
+artifacts/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
