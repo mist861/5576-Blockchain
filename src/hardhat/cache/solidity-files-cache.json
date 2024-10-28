@@ -36,6 +36,42 @@
       "artifacts": [
         "Corpus"
       ]
+    },
+    "/home/mist861/github/5576-Blockchain/src/hardhat/contracts/DocumentHashStore.sol": {
+      "lastModificationDate": 1729787631794,
+      "contentHash": "0933ac5d022d897a091d7832cf7b255a",
+      "sourceName": "contracts/DocumentHashStore.sol",
+      "solcConfig": {
+        "version": "0.8.27",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "HashCorpus"
+      ]
     }
   }
 }

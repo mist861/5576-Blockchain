@@ -9,13 +9,11 @@ from typing import Optional
 import os
 from web3 import Web3
 import pandas as pd
+import requests
+import hashlib
+from langchain.text_splitter import TokenTextSplitter
 
 abi = [
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
 	{
 		"inputs": [
 			{
@@ -35,6 +33,16 @@ abi = [
 				"internalType": "string",
 				"name": "metadata",
 				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "hash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "location",
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -43,19 +51,19 @@ abi = [
 	{
 		"inputs": [
 			{
-				"internalType": "uint256[]",
-				"name": "ids",
-				"type": "uint256[]"
-			},
-			{
 				"internalType": "string",
 				"name": "metadata",
 				"type": "string"
 			},
 			{
-				"internalType": "string[]",
-				"name": "chunks",
-				"type": "string[]"
+				"internalType": "string",
+				"name": "hash",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "location",
+				"type": "string"
 			}
 		],
 		"name": "insert",
@@ -118,17 +126,17 @@ abi = [
 						"type": "string"
 					},
 					{
-						"internalType": "uint256[]",
-						"name": "ids",
-						"type": "uint256[]"
+						"internalType": "string",
+						"name": "hash",
+						"type": "string"
 					},
 					{
-						"internalType": "string[]",
-						"name": "chunks",
-						"type": "string[]"
+						"internalType": "string",
+						"name": "location",
+						"type": "string"
 					}
 				],
-				"internalType": "struct Corpus.Document",
+				"internalType": "struct HashCorpus.Document",
 				"name": "",
 				"type": "tuple"
 			}
@@ -157,19 +165,6 @@ abi = [
 	},
 	{
 		"inputs": [],
-		"name": "retrieveLatestID",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
 		"name": "retrieveLatestKey",
 		"outputs": [
 			{
@@ -184,13 +179,13 @@ abi = [
 ]
 
 web3class = Web3(Web3.HTTPProvider('http://localhost:8545'))
-contractAddress = web3class.to_checksum_address('0x5fbdb2315678afecb367f032d93f642f64180aa3')
+contractAddress = web3class.to_checksum_address('0xe7f1725e7734ce288f8367e1bb143e90bb3f0512')
 
 def retrieveDocument(key):
     contract = web3class.eth.contract(abi=abi, address=contractAddress)
     key = key
     doc = contract.functions.retrieveDocument(key).call()
-    if (len(doc[2]) > 0):
+    if (len(doc[0]) > 0):
         result = f'Retrieved document {key} results'
         print(result)
         return doc[1], doc[2], doc[3]
@@ -199,24 +194,49 @@ def retrieveDocument(key):
         print(result)
         return None, None, None
     
-def retrieveCorpus():
+def downloadDocument(location):
+    params = {'filename':f'{location}'}
+    url = 'http://localhost:8080/download/'
+    return requests.get(url, params).text
+    
+def retrieveHashCorpus():
     contract = web3class.eth.contract(abi=abi, address=contractAddress)
     latest_key = contract.functions.retrieveLatestKey().call();
     docs = []
-    ids = []
     metadatas = []
     for key in range(latest_key+1):
-        doc_metadata, doc_ids, doc_chunks = retrieveDocument(key)
-        if doc_chunks is not None:
-            for doc in range(len(doc_chunks)):
-                docs.append(doc_chunks[doc])
-                ids.append(str(doc_ids[doc]))
-                metadatas.append({'doc_type':doc_metadata})
-    return metadatas, ids, docs
+        doc_metadata, doc_hash, doc_location = retrieveDocument(key)
+        if doc_hash is not None:
+            doc = downloadDocument(doc_location)
+            sha256 = hashlib.sha256()
+            hash_string = str.encode(doc)
+            sha256.update(hash_string)
+            calc_hash = sha256.hexdigest()
+            if doc_hash == calc_hash:
+                docs.append(doc)
+                metadatas.append(doc_metadata)
+                print(f'Valid hash found for document {key}, document retrieved')
+            else:
+                print(f'Invalid hash found for document {key}, document not retrieved')
+                print(f'Blockchain hash: {doc_hash}')
+                print(f'Calculated hash: {calc_hash}')
+    return metadatas, docs
 
 @st.cache_resource
 def generate_vector_store():
-	db_metadatas, db_ids, db_docs = retrieveCorpus()
+	chunker = TokenTextSplitter(chunk_size=1000, chunk_overlap=100)
+	raw_metadatas, raw_docs = retrieveHashCorpus()
+	db_docs = []
+	db_metadatas = []
+	db_ids = []
+	ids = 0
+	for doc in range(len(raw_docs)):
+		split = chunker.split_text(raw_docs[doc])
+		for chunked_doc in range(len(split)):
+			db_docs.append(split[chunked_doc])
+			db_metadatas.append({'document_metadata': raw_metadatas[doc]})
+			db_ids.append(f'{ids}')
+			ids += 1
 	chroma_client = chromadb.Client()
 	collection = chroma_client.get_or_create_collection(name="blockchain_rag")
 	collection.add(documents=db_docs, ids=db_ids, metadatas=db_metadatas)
@@ -246,8 +266,6 @@ def rag_query(
 
     final_prompt = f"""
         You are a helpful assistant. Use the provided context to answer the provided question. 
-        The attribute names of each item are set in UPPERCASE followed by the attribute value.
-        For example, the cost or price of an item follows the term "PRICE_CURRENT".
         
         CONTEXT: {relevant_docs}
         QUESTION: {question}

@@ -186,6 +186,7 @@ abi = [
 web3class = Web3(Web3.HTTPProvider('http://localhost:8545'))
 contractAddress = web3class.to_checksum_address('0x5fbdb2315678afecb367f032d93f642f64180aa3')
 
+
 def retrieveDocument(key):
     contract = web3class.eth.contract(abi=abi, address=contractAddress)
     key = key
@@ -214,23 +215,20 @@ def retrieveCorpus():
                 metadatas.append({'doc_type':doc_metadata})
     return metadatas, ids, docs
 
-@st.cache_resource
-def generate_vector_store():
-	db_metadatas, db_ids, db_docs = retrieveCorpus()
-	chroma_client = chromadb.Client()
-	collection = chroma_client.get_or_create_collection(name="blockchain_rag")
-	collection.add(documents=db_docs, ids=db_ids, metadatas=db_metadatas)
-	return collection
 
-@st.cache_resource
-def generate_reranker():
-	llmreranker = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
-	return llmreranker
+db_metadatas, db_ids, db_docs = retrieveCorpus()
+
+chroma_client = chromadb.Client()
+collection = chroma_client.get_or_create_collection(name="ghibli")
+collection.add(documents=db_docs, ids=db_ids, metadatas=db_metadatas)
+
+
+llmreranker = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
 
 def rag_query(
     question: str,
     llm: str,
-    knowledge_index=generate_vector_store(),
+    knowledge_index=collection,
     reranker: Optional[RAGPretrainedModel] = None,
     num_retrieved_docs: int = 10,
     num_docs_final: int = 5):
@@ -276,6 +274,6 @@ for msg in st.session_state.messages: # Display the messages in the session stat
 if prompt := st.chat_input(): # If anything is added to the prompt by the user
     st.session_state.messages.append({"role": "user", "content": prompt}) # Add it to the session state
     st.chat_message("user").write(prompt) # Show it in the chat log
-    msg = rag_query(prompt, 'llama3.1', reranker=generate_reranker()) # Generate a message by calling the above function
+    msg = rag_query(prompt, 'llama3.1', reranker=llmreranker) # Generate a message by calling the above function
     st.session_state.messages.append({"role": "assistant", "content": msg}) # Add the message to the session state
     st.chat_message("assistant").write(msg) # Write the message out in the UI
