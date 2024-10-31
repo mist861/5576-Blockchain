@@ -4,10 +4,11 @@ const app = express() // Define a new express router object
 const multer = require('multer');
 const port = 8080 // Define a port to listen on
 
+const storage_directory = '/upload/corpus/'
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-         cb(null, path.join(__dirname, '/upload/corpus/'))
+         cb(null, path.join(__dirname, storage_directory))
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname)
@@ -44,7 +45,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 app.get('/download', function(req, res){
     const filename = req.query.filename;
-    const file = path.join(__dirname, '/upload/corpus/', filename)
+    const file = path.join(__dirname, storage_directory, filename)
     res.sendFile(file)
     //`${__dirname}/upload/corpus/${filename}`;
   });

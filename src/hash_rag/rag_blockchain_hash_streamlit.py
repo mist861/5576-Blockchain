@@ -180,6 +180,8 @@ abi = [
 
 web3class = Web3(Web3.HTTPProvider('http://localhost:8545'))
 contractAddress = web3class.to_checksum_address('0xe7f1725e7734ce288f8367e1bb143e90bb3f0512')
+shared_storage = False
+shared_directory = 'None'
 
 def retrieveDocument(key):
     contract = web3class.eth.contract(abi=abi, address=contractAddress)
@@ -195,9 +197,14 @@ def retrieveDocument(key):
         return None, None, None
     
 def downloadDocument(location):
-    params = {'filename':f'{location}'}
-    url = 'http://localhost:8080/download/'
-    return requests.get(url, params).text
+    if shared_storage == False:
+        params = {'filename':f'{location}'}
+        url = 'http://localhost:8080/download/'
+        return requests.get(url, params).text
+    else:
+        path = os.path.join(shared_directory, location)
+        return open(path, mode='r')
+
     
 def retrieveHashCorpus():
     contract = web3class.eth.contract(abi=abi, address=contractAddress)
