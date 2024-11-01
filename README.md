@@ -17,6 +17,7 @@ Instructions to implement this project are contained in the src directory README
 ** express
 ** web3
 * hardhat
+* hardhat-toolbox
 * MetaMask browser extension
 
 
