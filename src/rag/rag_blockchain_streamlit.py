@@ -245,10 +245,12 @@ def rag_query(
     relevant_docs = relevant_docs[:num_docs_final]
 
     final_prompt = f"""
-        You are a helpful assistant. Use the provided context to answer the provided question. 
-        The attribute names of each item are set in UPPERCASE followed by the attribute value.
-        For example, the cost or price of an item follows the term "PRICE_CURRENT".
-        
+       
+        You are a helpful assistant. Use the provided context to answer the provided question.
+        Do not mention that you were provided context in your reply.
+        If you do not know the answer or the answer is not in the provided, say that you don't know.
+        Do not make up an answer.       
+
         CONTEXT: {relevant_docs}
         QUESTION: {question}
         
