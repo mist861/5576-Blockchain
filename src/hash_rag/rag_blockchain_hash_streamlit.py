@@ -272,12 +272,8 @@ def rag_query(
     relevant_docs = relevant_docs[:num_docs_final]
 
     final_prompt = f"""
-
-        You are a helpful assistant. Use the provided context to answer the provided question.
-        Do not mention that you were provided context in your reply.
-        If you do not know the answer or the answer is not in the provided, say that you don't know.
-        Do not make up an answer.
-
+        You are a helpful assistant. Use the provided context to answer the provided question. 
+        
         CONTEXT: {relevant_docs}
         QUESTION: {question}
         
