@@ -53,10 +53,51 @@ Chain ID: 31337
 
 To run the RAG frontend, in the rag directory run:
 ```
-streamlit run rag_blockchain_streamlit.py
+pip install -r ./requirements.txt
+python -m streamlit run rag_blockchain_streamlit.py
 ```
 
-Please note this will only load documents currently in the corpus in the blockchain. If additional documents are needed, stop streamlit and rerun the above command.
+*Alternatively, to run the hashing version of this system, perform the following:*
+
+Assuming that hardhat is running, in the hardhat directory run:
+
+```
+npx hardhat run scripts/hash_deploy.js --network localhost
+```
+
+Once the contract has been deployed take note of the contract's address (which can be found in the deployment block in first command line running hardhat node), update line 173 of corpus_hash_interact.js with the new contract address:
+
+```
+this.contractAddress = '<NEW_CONTRACT_ADDRESS>'
+```
+
+After modifying interact.js, in the hash_frontend directory run:
+
+```
+npm install express
+node corpus_hash_server.js
+```
+
+Which can then be accessed at:
+
+```
+http://localhost:8080
+```
+
+From any browser with MetaMask installed. PLEASE NOTE: the contract will be deployed by default to the first default hardhat account. This account will need to be imported to MetaMask to allow for most interactions.  To connect MetaMask to the local hardhat network, be sure to add a new network with the following:
+
+```
+RPC Url: http://127.0.0.1:8545
+Chain ID: 31337
+```
+
+To run the RAG frontend, in the rag directory run:
+```
+pip install -r ./requirements.txt
+python -m streamlit run rag_blockchain_hash_streamlit.py
+```
+
+Please note this will only load documents currently in the corpus in the blockchain. If additional documents are needed, stop streamlit and rerun the above RAG frontend commands.
 
 ## Requirements:
 
