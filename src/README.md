@@ -74,6 +74,7 @@ After modifying interact.js, in the hash_frontend directory run:
 
 ```
 npm install express
+npm install multer
 node corpus_hash_server.js
 ```
 
