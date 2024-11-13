@@ -11,7 +11,17 @@ This directory contains the source files and documentation for the Fall 2024 Pro
 
 ## Execution:
 
-From the assignment hardhat directory, run:
+If not already installed, install Node in the /src (this) directory with:
+
+```
+curl -fsSL https://fnm.vercel.app/install | bash
+source ~/.bashrc
+fnm use --install-if-missing 22
+```
+
+For more information on installing Node, see https://nodejs.org/en/download/package-manager.
+
+In the /src/hardhat directory, install Hardhat with:
 
 ```
 npm install hardhat
@@ -19,7 +29,9 @@ npm install '@nomicfoundation/hardhat-toolbox'
 npx hardhat node
 ```
 
-In a separate command line, in the hardhat directory, run:
+For more information on install Hardhat, see: https://hardhat.org/hardhat-runner/docs/getting-started.
+
+In a separate command line, in the /src/hardhat directory, run:
 
 ```
 npx hardhat run scripts/deploy.js --network localhost
@@ -52,7 +64,9 @@ Chain ID: 31337
 ```
 
 To run the RAG frontend, in the rag directory run:
+
 ```
+python -m ensurepip --upgrade
 pip install -r ./requirements.txt
 python -m streamlit run rag_blockchain_streamlit.py
 ```
@@ -92,7 +106,9 @@ Chain ID: 31337
 ```
 
 To run the RAG frontend, in the rag directory run:
+
 ```
+python -m ensurepip --upgrade
 pip install -r ./requirements.txt
 python -m streamlit run rag_blockchain_hash_streamlit.py
 ```
