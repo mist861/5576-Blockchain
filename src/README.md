@@ -88,6 +88,7 @@ this.contractAddress = '<NEW_CONTRACT_ADDRESS>'
 After modifying interact.js, in the hash_frontend directory run:
 
 ```
+mkdir -p upload/corpus
 npm install express
 node corpus_hash_server.js
 ```
