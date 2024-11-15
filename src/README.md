@@ -118,15 +118,17 @@ Please note this will only load documents currently in the corpus in the blockch
 
 ## Requirements:
 
-* npm
-* node.js with the following installed:
-** express
-** web3
-* hardhat
-* MetaMask browser extension
-* python > 3
-* streamlit
+* python
 
+The following are also required but have instructions provided:
+
+* npm
+  * express
+  * web3
+  * multer
+* hardhat
+  * hardhat-toolbox
+* MetaMask browser extension
 
 ## Contributors:
 
